@@ -11,4 +11,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface Cache {
+    CacheType cacheType() default CacheType.IN_MEMORY;
+
+    String fileName() default "";
+
+    boolean encrypt() default false;
+
+    String key() default "password";
 }

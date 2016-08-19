@@ -1,0 +1,17 @@
+*.log
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+logs/
+target/
+build/
+.gradle/
+*.iml
+.classpath
+.project
+.settings
+.idea/
+classes/
+secret.properties
+service.properties
+pid.pid
