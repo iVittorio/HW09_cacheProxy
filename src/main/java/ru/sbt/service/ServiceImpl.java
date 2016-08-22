@@ -1,11 +1,13 @@
 package ru.sbt.service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by i.viktor on 19/08/16.
  */
-public class ServiceImpl implements Service, Serializable {
+public class ServiceImpl implements Service {
 
     public double doHardWork(String workName, int num) {
 
@@ -24,5 +26,13 @@ public class ServiceImpl implements Service, Serializable {
         }
 
         return (float) num;
+    }
+
+    public List<String> workForChuckNorris(String workName, int size) {
+        List<String> list = new ArrayList<String>();
+        for (int i = 0; i < size; i++) {
+            list.add("String #" + i);
+        }
+        return list;
     }
 }

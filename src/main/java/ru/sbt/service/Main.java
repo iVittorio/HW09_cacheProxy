@@ -10,6 +10,7 @@ public class Main {
                         .cache(new ServiceImpl());
         runHard(service);
         runVeryHard(service);
+        workForChuckNorris(service);
 
     }
 
@@ -28,5 +29,13 @@ public class Main {
         System.out.println(service.veryHardWork("work1",20.));
         System.out.println(service.veryHardWork("work1",20.));
         System.out.println(service.veryHardWork("work2",20.));
+    }
+
+    private static void workForChuckNorris(Service service) {
+        System.out.print(service.workForChuckNorris("work1", 100));
+        System.out.print(service.workForChuckNorris("work2", 200));
+        System.out.print(service.workForChuckNorris("work1", 100));
+        System.out.print(service.workForChuckNorris("work2", 200));
+
     }
 }

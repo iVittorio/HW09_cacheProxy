@@ -13,9 +13,5 @@ import java.lang.annotation.Target;
 public @interface Cache {
     CacheType cacheType() default CacheType.IN_MEMORY;
 
-    String fileName() default "";
-
-    boolean encrypt() default false;
-
-    String key() default "password";
+    int listSize() default 10;
 }

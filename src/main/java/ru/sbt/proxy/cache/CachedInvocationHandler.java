@@ -39,35 +39,54 @@ public class CachedInvocationHandler implements InvocationHandler {
 
         if(cacheType == CacheType.IN_MEMORY) {
             return memoryCache(method, args);
-        } else return fileCache(method, args);
-//        if(!resultByArg.containsKey(key(method, args))) {
-//            System.out.println("Delegation of " + method.getName());
-//            Object result = invoke(method, args);
-//            resultByArg.put(key(method, args), result);
-//        }
-//        return resultByArg.get(key(method, args));
+        } else {
+            return fileCache(method, args);
+        }
+
     }
 
     private Object memoryCache(Method method, Object[] args) {
         if(!cacheMemory.containsKey(key(method, args))) {
             Object result = invoke(method, args);
-            cacheMemory.put(key(method, args), result);
+            if(method.getReturnType() == List.class) {
+                int listSize = method.getAnnotation(Cache.class).listSize();
+                result = listCut(result, listSize);
+            }
+            cacheMemory.put(key(method, args),result);
         }
         return cacheMemory.get(key(method, args));
     }
 
     private Object fileCache(Method method, Object[] args) {
-        Map<Object, Object> cacheFile = new HashMap<Object, Object>();
-        cacheFile.putAll(((Map<Object, Object>) deserializator(method)));
-        if(!cacheFile.containsKey(key(method, args))) {
-            Object result = invoke(method, args);
-            cacheFile.put(key(method, args), result);
+        String fileName = fileName(args, method);
+        Object result;
+        File file = new File(dir + fileName + ".ser");
+
+        if(!file.exists()) {
+            result = invoke(method, args);
+            if(method.getReturnType() == List.class) {
+                int listSize = method.getAnnotation(Cache.class).listSize();
+                result = listCut(result, listSize);
+            }
+            serializator(result, fileName);
+            return result;
+        } else {
+            return result = deserializator(fileName);
         }
-        return cacheFile.get(key(method, args));
     }
 
 
+    private Object listCut(Object o, int listSize) {
+        List<?> list = (List)o;
+        Object result;
 
+        if (list.size() <= listSize) {
+            result = list;
+            return result;
+        }
+        result = list.subList(0,listSize);
+        return result;
+    }
 
     private Object invoke(Method method, Object[] args) {
         try {
@@ -86,30 +105,31 @@ public class CachedInvocationHandler implements InvocationHandler {
         return key;
     }
 
-    private void serializator(Method method,Map<Object, Object> result){
+    private void serializator(Object o, String fileName) {
         try {
-            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(dir + fileName(method) + ".ser"));
-            outputStream.writeObject(result);
+            ObjectOutputStream outputStream = new ObjectOutputStream(
+                    new FileOutputStream(dir + fileName + ".ser"));
+            outputStream.writeObject(o);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
-
     }
 
-    private Object deserializator(Method method){
+    private <T> T deserializator(String fileName) {
         try {
-            ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(dir + fileName(method) + ".ser"));
-            return inputStream.readObject();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException(e.getMessage());
+            ObjectInputStream inputStream = new ObjectInputStream(
+                    new FileInputStream(dir + fileName + ".ser"));
+            return (T)inputStream.readObject();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
         }
+
     }
 
-    private String fileName(Method method) {
-        if(method.getAnnotation(Cache.class).fileName().equals("")) return method.getName();
-        else return method.getAnnotation(Cache.class).fileName();
+    private String fileName(Object[] args, Method method) {
+
+        return "Cache_" + method.getReturnType().getName() + "_" + args[0];
     }
 }
