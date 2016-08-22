@@ -36,6 +36,7 @@ public class Main {
         System.out.print(service.workForChuckNorris("work2", 200));
         System.out.print(service.workForChuckNorris("work1", 100));
         System.out.print(service.workForChuckNorris("work2", 200));
+        System.out.print(service.workForChuckNorris("work2", 200));
 
     }
 }
